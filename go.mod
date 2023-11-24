@@ -1,4 +1,4 @@
-module github.com/EssRt/gentoolplus
+module github.com/essrt/gentoolplus
 
 go 1.21.1
 
