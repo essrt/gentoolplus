@@ -20,6 +20,7 @@ var dbUser = flag.String("dbUser", "root", "Specify a user")
 var dbPwd = flag.String("dbPwd", "root", "Specify a pwd")
 var dbHost = flag.String("dbHost", "localhost", "Specify a host")
 var dbPort = flag.String("dbPort", "3306", "Specify a port")
+var OutPath = flag.String("OutPath", "./query", "Specify a path") 
 
 var MysqlConfig string
 
@@ -31,83 +32,11 @@ func main() {
 	// 解析命令行参数
 	flag.Parse()
 	MysqlConfig = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", *dbUser, *dbPwd, *dbHost, *dbPort, *dbName)
-	// fmt.Println("MysqlConfig:", MysqlConfig)
 	// 生成所有model和query
 	processAllTables(initInfo())
 	// 处理表关联关系
 	processTableRelations(initInfo())
-
-	// initCount()
-	// for i := 0; i < 10; i++ {
-	// 	db, g, opt = initInfo()
-	// 	// 生成所有model和query
-	// 	processAllTables(db, g, opt)
-	// 	// 处理表关联关系
-	// processTableRelations(db, g, opt)
-
-	// 	test.Count()
-	// }
-
 }
-
-// func initCount() {
-// 	// 连接数据库
-// 	db2, err := gorm.Open(mysql.Open(MysqlConfig), &gorm.Config{
-// 		DisableForeignKeyConstraintWhenMigrating: true,
-// 		NamingStrategy: schema.NamingStrategy{
-// 			SingularTable: true,
-// 		},
-// 	})
-// 	if err != nil {
-// 		panic(fmt.Errorf("数据库连接失败，请检查连接配置: %w", err))
-// 	}
-
-// 	relationList := []Results{}
-// 	// 执行这条sql语句，获取当前数据库中所有表之间的外键关联关系
-// 	// 执行结果保存到relationList中
-// 	db2.Raw("SELECT TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME,REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA = ? AND REFERENCED_TABLE_SCHEMA IS NOT NULL;", dbName).Scan(&relationList)
-
-// 	type subTable struct {
-// 		TABLE_NAME     string //子表名
-// 		TABLE_NAME_UP  string //子表名首字母大写
-// 		COLUMN_NAME    string //子表列名
-// 		COLUMN_NAME_UP string //子表列名首字母大写
-// 	}
-
-// 	masterTableMap := make(map[string][]subTable)
-// 	// 将relationList中的数据按照关联表名进行分组，将关联了父表名的所有子表数据放到一个切片中，然后将切片放到map中，map的key为父表名，value为子表切片
-// 	for _, sub := range relationList {
-// 		st := subTable{
-// 			TABLE_NAME:     sub.TABLE_NAME,                         //子表名
-// 			COLUMN_NAME:    sub.COLUMN_NAME,                        //子表列名
-// 			TABLE_NAME_UP:  Case2Camel(sub.TABLE_NAME),             //将子表名下划线去掉，转换成首字母大写
-// 			COLUMN_NAME_UP: Case2Camel(ProcessID(sub.COLUMN_NAME)), //将子表列名中以id结尾的字段中的id转换成ID格式，再将子表列名下划线去掉，转换成首字母大写
-// 		}
-// 		masterTableMap[sub.REFERENCED_TABLE_NAME] = append(masterTableMap[sub.REFERENCED_TABLE_NAME], st)
-// 	}
-
-// 	var count string
-// 	// 遍历map，将map中的数据取出来，生成对应的关联关系模型文件
-// 	for masterTable, subTables := range masterTableMap {
-// 		subcount := len(subTables)
-// 		count += fmt.Sprintf("%s,%d\n", masterTable, subcount)
-// 	}
-
-// 	// 将count写入count.txt文件中
-// 	workDir, _ := os.Getwd()
-// 	countFilePath := workDir + "/test/count.txt"
-// 	countFile, err := os.OpenFile(countFilePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
-// 	if err != nil {
-// 		fmt.Println("Error creating count file:", err)
-// 		return
-// 	}
-// 	defer countFile.Close()
-// 	if _, err := countFile.WriteString(count); err != nil {
-// 		fmt.Println("Error writing count file:", err)
-// 		return
-// 	}
-
-// }
 
 /**
  * 初始化数据库连接
@@ -131,7 +60,7 @@ func initInfo() (db *gorm.DB, g *gen.Generator, fieldOpts []gen.ModelOpt) {
 	// 生成实例
 	g = gen.NewGenerator(gen.Config{
 		// 相对执行`go run`时的路径, 会自动创建目录，相对路径为工程根目录
-		OutPath: "./query",
+		OutPath: *OutPath,
 
 		// WithDefaultQuery 生成默认查询结构体(作为全局变量使用), 即`Q`结构体和其字段(各表模型)
 		// WithoutContext 生成没有context调用限制的代码供查询
