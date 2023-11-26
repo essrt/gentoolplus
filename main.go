@@ -20,7 +20,7 @@ var dbUser = flag.String("dbUser", "root", "Specify a user")
 var dbPwd = flag.String("dbPwd", "root", "Specify a pwd")
 var dbHost = flag.String("dbHost", "localhost", "Specify a host")
 var dbPort = flag.String("dbPort", "3306", "Specify a port")
-var OutPath = flag.String("OutPath", "./query", "Specify a path") 
+var OutPath = flag.String("OutPath", "./query", "Specify a path")
 
 var MysqlConfig string
 
@@ -158,7 +158,7 @@ func moveGenFile() {
 		fmt.Println("创建文件夹logs失败!", err)
 		return
 	}
-	genFile := workDir + "/query/gen.go"
+	genFile := workDir + *OutPath + "/gen.go"
 	if _, err := os.Stat(genFile); err != nil {
 		fmt.Println("gen.go文件不存在!")
 		return
@@ -242,7 +242,7 @@ func processTableRelations(db *gorm.DB, g *gen.Generator, fieldOpts []gen.ModelO
  */
 func moveGenFileBack() {
 	workDir, _ := os.Getwd()
-	genFile := workDir + "/query/gen.go"
+	genFile := workDir + *OutPath + "/gen.go"
 	if _, err := os.Stat(genFile); err != nil {
 		fmt.Println("gen.go文件不存在!")
 		return
