@@ -20,7 +20,7 @@ var dbUser = flag.String("dbUser", "root", "Specify a user")
 var dbPwd = flag.String("dbPwd", "root", "Specify a pwd")
 var dbHost = flag.String("dbHost", "localhost", "Specify a host")
 var dbPort = flag.String("dbPort", "3306", "Specify a port")
-var outPath = flag.String("outPath", "./query", "Specify a path")
+var OutPath = flag.String("OutPath", "./query", "Specify a path")
 
 var MysqlConfig string
 
@@ -28,7 +28,6 @@ func main() {
 	// 解析命令行参数
 	flag.Parse()
 	MysqlConfig = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", *dbUser, *dbPwd, *dbHost, *dbPort, *dbName)
-	// fmt.Println("MysqlConfig:", MysqlConfig)
 	// 生成所有model和query
 	processAllTables(initInfo())
 	// 处理表关联关系
@@ -36,7 +35,6 @@ func main() {
 
 	// 删除临时tmp文件
 	deleteTmpDir()
-
 }
 
 /**
@@ -61,7 +59,7 @@ func initInfo() (db *gorm.DB, g *gen.Generator, fieldOpts []gen.ModelOpt) {
 	// 生成实例
 	g = gen.NewGenerator(gen.Config{
 		// 相对执行`go run`时的路径, 会自动创建目录，相对路径为工程根目录
-		OutPath: *outPath,
+		OutPath: *OutPath,
 
 		// WithDefaultQuery 生成默认查询结构体(作为全局变量使用), 即`Q`结构体和其字段(各表模型)
 		// WithoutContext 生成没有context调用限制的代码供查询
@@ -229,7 +227,7 @@ func moveGenFile() {
 		fmt.Println("创建文件夹logs失败!", err)
 		return
 	}
-	genFile := workDir + *outPath + "/gen.go"
+	genFile := workDir + *OutPath + "/gen.go"
 	if _, err := os.Stat(genFile); err != nil {
 		fmt.Println("gen.go文件不存在!")
 		return
@@ -243,7 +241,7 @@ func moveGenFile() {
  */
 func moveGenFileBack() {
 	workDir, _ := os.Getwd()
-	genFile := workDir + *outPath + "/gen.go"
+	genFile := workDir + *OutPath + "/gen.go"
 	if _, err := os.Stat(genFile); err != nil {
 		fmt.Println("gen.go文件不存在!")
 		return
