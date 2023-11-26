@@ -30,7 +30,7 @@ type Config struct {
 	DbPwd   string `json:"dbPwd"`
 	DbHost  string `json:"dbHost"`
 	DbPort  string `json:"dbPort"`
-	outPath string `json:"outPath"`
+	OutPath string `json:"OutPath"`
 }
 
 var MysqlConfig string
@@ -90,7 +90,7 @@ func main() {
 	*dbPwd = getValueOrDefault(*dbPwd, configFromFile.DbPwd)
 	*dbHost = getValueOrDefault(*dbHost, configFromFile.DbHost)
 	*dbPort = getValueOrDefault(*dbPort, configFromFile.DbPort)
-	*outPath = getValueOrDefault(*outPath, configFromFile.outPath)
+	*outPath = getValueOrDefault(*outPath, configFromFile.OutPath)
 
 	MysqlConfig = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", *dbUser, *dbPwd, *dbHost, *dbPort, *dbName)
 	// 生成所有model和query
@@ -135,7 +135,7 @@ func initInfo() (db *gorm.DB, g *gen.Generator, fieldOpts []gen.ModelOpt) {
 	// 生成实例
 	g = gen.NewGenerator(gen.Config{
 		// 相对执行`go run`时的路径, 会自动创建目录，相对路径为工程根目录
-		outPath: *outPath,
+		OutPath: *outPath,
 
 		// WithDefaultQuery 生成默认查询结构体(作为全局变量使用), 即`Q`结构体和其字段(各表模型)
 		// WithoutContext 生成没有context调用限制的代码供查询
