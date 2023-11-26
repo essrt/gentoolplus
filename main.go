@@ -20,7 +20,7 @@ var dbUser = flag.String("dbUser", "", "Specify a user")
 var dbPwd = flag.String("dbPwd", "", "Specify a pwd")
 var dbHost = flag.String("dbHost", "", "Specify a host")
 var dbPort = flag.String("dbPort", "", "Specify a port")
-var OutPath = flag.String("OutPath", "", "Specify a path")
+var outPath = flag.String("outPath", "", "Specify a path")
 var helpFlag = flag.Bool("h", false, "display help information")
 var configFile = flag.String("c", "", "配置文件路径")
 
