@@ -24,10 +24,6 @@ var OutPath = flag.String("OutPath", "./query", "Specify a path")
 
 var MysqlConfig string
 
-// var db *gorm.DB
-// var g *gen.Generator
-// var opt []gen.ModelOpt
-
 func main() {
 	// 解析命令行参数
 	flag.Parse()
@@ -36,6 +32,9 @@ func main() {
 	processAllTables(initInfo())
 	// 处理表关联关系
 	processTableRelations(initInfo())
+
+	// 删除临时tmp文件
+	deleteTmpDir()
 }
 
 /**
@@ -142,31 +141,6 @@ func processAllTables(db *gorm.DB, g *gen.Generator, fieldOpts []gen.ModelOpt) {
 	moveGenFile()
 }
 
-/**
- * 将生成的query目录下的gen.go根文件移动到当前目录tmp文件夹下，
- * gen.go文件中保存的是所有表的模型的引用，
- * gen在生成query文件时，只会将ApplyBasic方法参数中的模型写入query中的根文件gen.go中，
- * 而我们在后续调用processTableRelations方法处理关联关系的时候，只处理有关联关系的表，
- * 方法中生成的gen.go中只会有有关联关系的表的模型的引用，因此需要将保存了所有表的模型的引用的gen.go文件
- * 移动到tmp文件夹下，然后再调用processTableRelations方法处理关联关系，处理完关联关系后，
- * 再将tmp文件夹下的gen.go文件移动到query目录下。
- */
-func moveGenFile() {
-	workDir, _ := os.Getwd()
-	err := os.MkdirAll(workDir+"/tmp", 0777)
-	if err != nil {
-		fmt.Println("创建文件夹logs失败!", err)
-		return
-	}
-	genFile := workDir + *OutPath + "/gen.go"
-	if _, err := os.Stat(genFile); err != nil {
-		fmt.Println("gen.go文件不存在!")
-		return
-	}
-	fmt.Println("gen.go文件存在:", genFile)
-	os.Rename(genFile, workDir+"/tmp/gen.go")
-}
-
 type Results struct {
 	TABLE_NAME             string //子表名
 	COLUMN_NAME            string //子表列名
@@ -238,6 +212,31 @@ func processTableRelations(db *gorm.DB, g *gen.Generator, fieldOpts []gen.ModelO
 }
 
 /**
+ * 将生成的query目录下的gen.go根文件移动到当前目录tmp文件夹下，
+ * gen.go文件中保存的是所有表的模型的引用，
+ * gen在生成query文件时，只会将ApplyBasic方法参数中的模型写入query中的根文件gen.go中，
+ * 而我们在后续调用processTableRelations方法处理关联关系的时候，只处理有关联关系的表，
+ * 方法中生成的gen.go中只会有有关联关系的表的模型的引用，因此需要将保存了所有表的模型的引用的gen.go文件
+ * 移动到tmp文件夹下，然后再调用processTableRelations方法处理关联关系，处理完关联关系后，
+ * 再将tmp文件夹下的gen.go文件移动到query目录下。
+ */
+func moveGenFile() {
+	workDir, _ := os.Getwd()
+	err := os.MkdirAll(workDir+"/tmp", 0777)
+	if err != nil {
+		fmt.Println("创建文件夹logs失败!", err)
+		return
+	}
+	genFile := workDir + *OutPath + "/gen.go"
+	if _, err := os.Stat(genFile); err != nil {
+		fmt.Println("gen.go文件不存在!")
+		return
+	}
+	fmt.Println("gen.go文件存在:", genFile)
+	os.Rename(genFile, workDir+"/tmp/gen.go")
+}
+
+/**
  * 将当前目录tmp文件夹下的gen.go文件移动到query目录下
  */
 func moveGenFileBack() {
@@ -248,6 +247,24 @@ func moveGenFileBack() {
 		return
 	}
 	os.Rename(workDir+"/tmp/gen.go", genFile)
+}
+
+/**
+*删除临时创建的tmp文件夹
+ */
+func deleteTmpDir() {
+	workDir, _ := os.Getwd()
+	// 要删除的文件夹路径
+	folderPath := workDir + "/tmp"
+
+	// 删除文件夹
+	err := os.RemoveAll(folderPath)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+
+	fmt.Println("临时tmp文件夹删除成功")
 }
 
 // 下划线写法转为驼峰写法
