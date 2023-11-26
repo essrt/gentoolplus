@@ -30,7 +30,7 @@ type Config struct {
 	DbPwd   string `json:"dbPwd"`
 	DbHost  string `json:"dbHost"`
 	DbPort  string `json:"dbPort"`
-	OutPath string `json:"OutPath"`
+	outPath string `json:"outPath"`
 }
 
 var MysqlConfig string
@@ -90,7 +90,7 @@ func main() {
 	*dbPwd = getValueOrDefault(*dbPwd, configFromFile.DbPwd)
 	*dbHost = getValueOrDefault(*dbHost, configFromFile.DbHost)
 	*dbPort = getValueOrDefault(*dbPort, configFromFile.DbPort)
-	*OutPath = getValueOrDefault(*OutPath, configFromFile.OutPath)
+	*outPath = getValueOrDefault(*outPath, configFromFile.outPath)
 
 	MysqlConfig = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", *dbUser, *dbPwd, *dbHost, *dbPort, *dbName)
 	// 生成所有model和query
@@ -129,13 +129,13 @@ func initInfo() (db *gorm.DB, g *gen.Generator, fieldOpts []gen.ModelOpt) {
 		panic(fmt.Errorf("数据库连接失败，请检查连接配置: %w", err))
 	}
 
-	if *OutPath == "" {
-		*OutPath = "./query"
+	if *outPath == "" {
+		*outPath = "./query"
 	}
 	// 生成实例
 	g = gen.NewGenerator(gen.Config{
 		// 相对执行`go run`时的路径, 会自动创建目录，相对路径为工程根目录
-		OutPath: *OutPath,
+		outPath: *outPath,
 
 		// WithDefaultQuery 生成默认查询结构体(作为全局变量使用), 即`Q`结构体和其字段(各表模型)
 		// WithoutContext 生成没有context调用限制的代码供查询
@@ -303,7 +303,7 @@ func moveGenFile() {
 		fmt.Println("创建文件夹logs失败!", err)
 		return
 	}
-	genFile := workDir + *OutPath + "/gen.go"
+	genFile := workDir + *outPath + "/gen.go"
 	if _, err := os.Stat(genFile); err != nil {
 		fmt.Println("gen.go文件不存在!")
 		return
@@ -317,7 +317,7 @@ func moveGenFile() {
  */
 func moveGenFileBack() {
 	workDir, _ := os.Getwd()
-	genFile := workDir + *OutPath + "/gen.go"
+	genFile := workDir + *outPath + "/gen.go"
 	if _, err := os.Stat(genFile); err != nil {
 		fmt.Println("gen.go文件不存在!")
 		return
