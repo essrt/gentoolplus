@@ -15,18 +15,83 @@ import (
 	"gorm.io/gorm/schema"
 )
 
-var dbName = flag.String("dbName", "defaultName", "Specify a name")
-var dbUser = flag.String("dbUser", "root", "Specify a user")
-var dbPwd = flag.String("dbPwd", "root", "Specify a pwd")
-var dbHost = flag.String("dbHost", "localhost", "Specify a host")
-var dbPort = flag.String("dbPort", "3306", "Specify a port")
-var OutPath = flag.String("OutPath", "./query", "Specify a path")
+var dbName = flag.String("dbName", "", "Specify a name")
+var dbUser = flag.String("dbUser", "", "Specify a user")
+var dbPwd = flag.String("dbPwd", "", "Specify a pwd")
+var dbHost = flag.String("dbHost", "", "Specify a host")
+var dbPort = flag.String("dbPort", "", "Specify a port")
+var OutPath = flag.String("OutPath", "", "Specify a path")
+var helpFlag = flag.Bool("h", false, "display help information")
+var configFile = flag.String("c", "", "配置文件路径")
+
+type Config struct {
+	DbName  string `json:"dbName"`
+	DbUser  string `json:"dbUser"`
+	DbPwd   string `json:"dbPwd"`
+	DbHost  string `json:"dbHost"`
+	DbPort  string `json:"dbPort"`
+	OutPath string `json:"OutPath"`
+}
 
 var MysqlConfig string
+
+// readConfig 从文件中读取配置信息
+func readConfig(filename string) (Config, error) {
+	var config Config
+
+	// 读取文件内容
+	data, err := os.ReadFile(filename)
+	if err != nil {
+		return config, err
+	}
+
+	// 将 JSON 解析到 Config 结构体
+	err = json.Unmarshal(data, &config)
+	if err != nil {
+		return config, err
+	}
+
+	return config, nil
+}
+
+// getValueOrDefault 返回非空值，如果为空，则返回默认值
+func getValueOrDefault(value, defaultValue string) string {
+	if value != "" {
+		return value
+	}
+	return defaultValue
+}
 
 func main() {
 	// 解析命令行参数
 	flag.Parse()
+
+	// 如果用户使用了 -h 参数，则显示帮助信息
+	if *helpFlag {
+		displayHelp()
+		return
+	}
+
+	// 如果用户使用了 -c 参数，则读取配置文件
+	// 读取配置文件（如果提供了配置文件选项）
+	var configFromFile Config
+	if *configFile != "" {
+		config, err := readConfig(*configFile)
+		if err != nil {
+			fmt.Println("Error reading config:", err)
+			return
+		}
+		configFromFile = config
+	}
+
+	// 使用命令行选项覆盖配置文件中的值
+	*dbName = getValueOrDefault(*dbName, configFromFile.DbName)
+	*dbUser = getValueOrDefault(*dbUser, configFromFile.DbUser)
+	*dbPwd = getValueOrDefault(*dbPwd, configFromFile.DbPwd)
+	*dbHost = getValueOrDefault(*dbHost, configFromFile.DbHost)
+	*dbPort = getValueOrDefault(*dbPort, configFromFile.DbPort)
+	*OutPath = getValueOrDefault(*OutPath, configFromFile.OutPath)
+
 	MysqlConfig = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", *dbUser, *dbPwd, *dbHost, *dbPort, *dbName)
 	// 生成所有model和query
 	processAllTables(initInfo())
@@ -35,6 +100,14 @@ func main() {
 
 	// 删除临时tmp文件
 	deleteTmpDir()
+}
+
+// 显示帮助信息的函数
+func displayHelp() {
+	fmt.Println("Usage: your_program [options]")
+	fmt.Println("Options:")
+	flag.PrintDefaults()
+	os.Exit(0)
 }
 
 /**
@@ -56,6 +129,9 @@ func initInfo() (db *gorm.DB, g *gen.Generator, fieldOpts []gen.ModelOpt) {
 		panic(fmt.Errorf("数据库连接失败，请检查连接配置: %w", err))
 	}
 
+	if *OutPath == "" {
+		*OutPath = "./query"
+	}
 	// 生成实例
 	g = gen.NewGenerator(gen.Config{
 		// 相对执行`go run`时的路径, 会自动创建目录，相对路径为工程根目录
