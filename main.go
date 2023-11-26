@@ -30,7 +30,7 @@ type Config struct {
 	DbPwd   string `json:"dbPwd"`
 	DbHost  string `json:"dbHost"`
 	DbPort  string `json:"dbPort"`
-	OutPath string `json:"OutPath"`
+	OutPath string `json:"outPath"`
 }
 
 var MysqlConfig string
