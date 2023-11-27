@@ -8,11 +8,11 @@ gentoolplus -dbName dbname -dsn "user:pwd@tcp(localhost:3306)/dbname?charset=utf
 
 参数选项的解释：
 
-	-dbName: 数据库名称（必须提供一个数据库名称）
-	-dsn "user:pwd@tcp(localhost:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local"  (用于连接数据库的DSN)
-	-outPath：指定输出目录(默认 “./dao/query”)
-	-c 配置文件路径、默认值 “”、命令行选项的优先级高于配置文件
- 	-h 帮助文档
+	-dbName 	数据库名称（必须提供一个数据库名称）
+	-dsn   		用于连接数据库的DSN
+	-outPath	指定输出目录(默认 ./dao/query)
+	-c 		配置文件路径、默认值 “”、命令行选项的优先级高于配置文件
+ 	-h 		帮助文档
 
 配置文件格式为json格式
 主要包含：
