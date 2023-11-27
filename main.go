@@ -15,11 +15,11 @@ import (
 	"gorm.io/gorm/schema"
 )
 
-var dbName = flag.String("dbName", "", "Specify a name")
+var dbName = flag.String("dbName", "", "指定数据库名称")
 
-var outPath = flag.String("outPath", "", "Specify a path")
-var dsn = flag.String("dsn", "", "Specify a dsn")
-var helpFlag = flag.Bool("h", false, "display help information")
+var outPath = flag.String("outPath", "", "指定输出目录(默认 ./dao/query)")
+var dsn = flag.String("dsn", "", "用于连接数据库的DSN  ")
+var helpFlag = flag.Bool("h", false, "帮助文档")
 var configFile = flag.String("c", "", "配置文件路径")
 
 type Config struct {
