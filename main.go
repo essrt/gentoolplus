@@ -16,24 +16,42 @@ import (
 )
 
 var dbName = flag.String("dbName", "", "Specify a name")
-var dbUser = flag.String("dbUser", "", "Specify a user")
-var dbPwd = flag.String("dbPwd", "", "Specify a pwd")
-var dbHost = flag.String("dbHost", "", "Specify a host")
-var dbPort = flag.String("dbPort", "", "Specify a port")
+
 var outPath = flag.String("outPath", "", "Specify a path")
+var dsn = flag.String("dsn", "", "Specify a dsn")
 var helpFlag = flag.Bool("h", false, "display help information")
 var configFile = flag.String("c", "", "配置文件路径")
 
 type Config struct {
-	DbName  string `json:"dbName"`
-	DbUser  string `json:"dbUser"`
-	DbPwd   string `json:"dbPwd"`
-	DbHost  string `json:"dbHost"`
-	DbPort  string `json:"dbPort"`
-	OutPath string `json:"outPath"`
+	DbName  string            `json:"dbName"`
+	Dsn     string            `json:"dsn"`
+	OutPath string            `json:"outPath"`
+	DataMap map[string]string `json:"dataMap"` // 自定义字段的数据类型
+
+	// 表字段可为 null 值时, 对应结体字段使用指针类型
+	FieldNullable bool `json:"fieldNullable"`
+
+	// 表字段默认值与模型结构体字段零值不一致的字段, 在插入数据时需要赋值该字段值为零值的, 结构体字段须是指针类型才能成功, 即`FieldCoverable:true`配置下生成的结构体字段.
+	// 因为在插入时遇到字段为零值的会被GORM赋予默认值. 如字段`age`表默认值为10, 即使你显式设置为0最后也会被GORM设为10提交.
+	// 如果该字段没有上面提到的插入时赋零值的特殊需要, 则字段为非指针类型使用起来会比较方便.
+	FieldCoverable bool `json:"fieldCoverable"`
+
+	// 模型结构体字段的数字类型的符号表示是否与表字段的一致, `false`指示都用有符号类型
+	FieldSignable bool `json:"fieldSignable"`
+	// 生成 gorm 标签的字段索引属性
+	FieldWithIndexTag bool `json:"fieldWithIndexTag"`
+	// 生成 gorm 标签的字段类型属性
+	FieldWithTypeTag bool `json:"fieldWithTypeTag"`
+	// 生成单元测试，默认值 false, 选项: false / true
+	WithUnitTest bool `json:"withUnitTest"`
+	// Genrated 查询代码文件名称，默认值：gen.go
+	OutFile string `json:"outFile"`
+	// 生成模型代码包名称。默认值：model
+	ModelPkgPath string `json:"modelPkgPath"`
 }
 
-var MysqlConfig string
+var configFromFile = Config{}
+
 
 // readConfig 从文件中读取配置信息
 func readConfig(filename string) (Config, error) {
@@ -50,6 +68,7 @@ func readConfig(filename string) (Config, error) {
 	if err != nil {
 		return config, err
 	}
+	fmt.Println("config:==================", config)
 
 	return config, nil
 }
@@ -74,7 +93,6 @@ func main() {
 
 	// 如果用户使用了 -c 参数，则读取配置文件
 	// 读取配置文件（如果提供了配置文件选项）
-	var configFromFile Config
 	if *configFile != "" {
 		config, err := readConfig(*configFile)
 		if err != nil {
@@ -84,15 +102,13 @@ func main() {
 		configFromFile = config
 	}
 
+	// 如果用户使用了 -dsn 参数，则使用该参数值覆盖配置文件中的值
+	*dsn = getValueOrDefault(*dsn, configFromFile.Dsn)
+
 	// 使用命令行选项覆盖配置文件中的值
 	*dbName = getValueOrDefault(*dbName, configFromFile.DbName)
-	*dbUser = getValueOrDefault(*dbUser, configFromFile.DbUser)
-	*dbPwd = getValueOrDefault(*dbPwd, configFromFile.DbPwd)
-	*dbHost = getValueOrDefault(*dbHost, configFromFile.DbHost)
-	*dbPort = getValueOrDefault(*dbPort, configFromFile.DbPort)
 	*outPath = getValueOrDefault(*outPath, configFromFile.OutPath)
 
-	MysqlConfig = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", *dbUser, *dbPwd, *dbHost, *dbPort, *dbName)
 	// 生成所有model和query
 	processAllTables(initInfo())
 	// 处理表关联关系
@@ -119,7 +135,7 @@ func displayHelp() {
 func initInfo() (db *gorm.DB, g *gen.Generator, fieldOpts []gen.ModelOpt) {
 	// var err error
 	// 连接数据库
-	db, err := gorm.Open(mysql.Open(MysqlConfig), &gorm.Config{
+	db, err := gorm.Open(mysql.Open(*dsn), &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,
@@ -130,7 +146,15 @@ func initInfo() (db *gorm.DB, g *gen.Generator, fieldOpts []gen.ModelOpt) {
 	}
 
 	if *outPath == "" {
-		*outPath = "./query"
+		*outPath = "./dao/query"
+	}
+
+	if configFromFile.ModelPkgPath == "" {
+		configFromFile.ModelPkgPath = "model"
+	}
+
+	if configFromFile.OutFile == "" {
+		configFromFile.OutFile = "gen.go"
 	}
 	// 生成实例
 	g = gen.NewGenerator(gen.Config{
@@ -143,32 +167,38 @@ func initInfo() (db *gorm.DB, g *gen.Generator, fieldOpts []gen.ModelOpt) {
 		Mode: gen.WithoutContext | gen.WithDefaultQuery | gen.WithQueryInterface,
 
 		// 表字段可为 null 值时, 对应结体字段使用指针类型
-		FieldNullable: true, // generate pointer when field is nullable
+		FieldNullable: configFromFile.FieldNullable,
 
 		// 表字段默认值与模型结构体字段零值不一致的字段, 在插入数据时需要赋值该字段值为零值的, 结构体字段须是指针类型才能成功, 即`FieldCoverable:true`配置下生成的结构体字段.
 		// 因为在插入时遇到字段为零值的会被GORM赋予默认值. 如字段`age`表默认值为10, 即使你显式设置为0最后也会被GORM设为10提交.
 		// 如果该字段没有上面提到的插入时赋零值的特殊需要, 则字段为非指针类型使用起来会比较方便.
-		FieldCoverable: false, // generate pointer when field has default value, to fix problem zero value cannot be assign: https://gorm.io/docs/create.html#Default-Values
+		FieldCoverable: configFromFile.FieldCoverable,
 
 		// 模型结构体字段的数字类型的符号表示是否与表字段的一致, `false`指示都用有符号类型
-		FieldSignable: false, // detect integer field's unsigned type, adjust generated data type
+		FieldSignable: configFromFile.FieldSignable,
 		// 生成 gorm 标签的字段索引属性
-		FieldWithIndexTag: false, // generate with gorm index tag
+		FieldWithIndexTag: configFromFile.FieldWithIndexTag,
 		// 生成 gorm 标签的字段类型属性
-		FieldWithTypeTag: true, // generate with gorm column type tag
+		FieldWithTypeTag: configFromFile.FieldWithTypeTag,
+		// 生成单元测试，默认值 false, 选项: false / true
+		WithUnitTest: configFromFile.WithUnitTest,
+		// 生成模型代码包名称。默认值：model
+		ModelPkgPath: configFromFile.ModelPkgPath,
+		// 生成的query code文件名称，默认值：gen.go
+		OutFile: configFromFile.OutFile,
 	})
 	// 设置目标 db
 	g.UseDB(db)
 
 	// 自定义字段的数据类型
 	// 统一数字类型为int64,兼容protobuf
-	dataMap := map[string]func(columnType gorm.ColumnType) (dataType string){
-		"tinyint":   func(columnType gorm.ColumnType) (dataType string) { return "int64" },
-		"smallint":  func(columnType gorm.ColumnType) (dataType string) { return "int64" },
-		"mediumint": func(columnType gorm.ColumnType) (dataType string) { return "int64" },
-		"bigint":    func(columnType gorm.ColumnType) (dataType string) { return "int64" },
-		"int":       func(columnType gorm.ColumnType) (dataType string) { return "int64" },
+	dataMap := map[string]func(columnType gorm.ColumnType) (dataType string){}
+	if configFromFile.DataMap != nil {
+		for k, v := range configFromFile.DataMap {
+			dataMap[k] = func(columnType gorm.ColumnType) (dataType string) { return v }
+		}
 	}
+
 	// 要先于`ApplyBasic`执行
 	g.WithDataTypeMap(dataMap)
 
@@ -305,6 +335,7 @@ func moveGenFile() {
 	}
 	genFile := workDir + *outPath + "/gen.go"
 	if _, err := os.Stat(genFile); err != nil {
+		fmt.Println("genfile:", genFile)
 		fmt.Println("gen.go文件不存在!")
 		return
 	}
@@ -319,6 +350,7 @@ func moveGenFileBack() {
 	workDir, _ := os.Getwd()
 	genFile := workDir + *outPath + "/gen.go"
 	if _, err := os.Stat(genFile); err != nil {
+		fmt.Println("genfile2:", genFile)
 		fmt.Println("gen.go文件不存在!")
 		return
 	}
