@@ -22,6 +22,11 @@ var helpFlag = flag.Bool("h", false, "帮助文档")
 var configFile = flag.String("c", "", "配置文件路径")
 
 type Config struct {
+	Version  string   `json:"version"`
+	Database DBConfig `json:"database"`
+}
+
+type DBConfig struct {
 	DbName  string            `json:"dbName"`
 	Dsn     string            `json:"dsn"`
 	OutPath string            `json:"outPath"`
@@ -49,7 +54,7 @@ type Config struct {
 	ModelPkgPath string `json:"modelPkgPath"`
 }
 
-var configFromFile = Config{}
+var configFromFile = DBConfig{}
 
 // readConfig 从文件中读取配置信息
 func readConfig(filename string) (Config, error) {
@@ -66,7 +71,6 @@ func readConfig(filename string) (Config, error) {
 	if err != nil {
 		return config, err
 	}
-	fmt.Println("config:==================", config)
 
 	return config, nil
 }
@@ -97,7 +101,7 @@ func main() {
 			fmt.Println("Error reading config:", err)
 			return
 		}
-		configFromFile = config
+		configFromFile = config.Database
 	}
 
 	// 如果用户使用了 -dsn 参数，则使用该参数值覆盖配置文件中的值
