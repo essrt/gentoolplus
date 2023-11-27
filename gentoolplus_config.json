@@ -1,0 +1,22 @@
+{
+    "version": "0.1",
+    "database": {
+        "dbDriver": "mysql",
+        "dbName": "petshop_dev",
+        "dsn": "root:qw962464@tcp(localhost:3306)/petshop_dev?charset=utf8mb4&parseTime=True&loc=Local",
+        "outPath": "./dao/query",
+        "dataMap": {
+            "tinyint": "int64",
+            "smallint": "int64",
+            "mediumint": "int64",
+            "bigint": "int64",
+            "int": "int64"
+        },
+        "fieldNullable": true,
+        "fieldCoverable": false,
+        "fieldSignable": false,
+        "fieldWithIndexTag": false,
+        "fieldWithTypeTag": true,
+        "withUnitTest": false
+    }
+}
