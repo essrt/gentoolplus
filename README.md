@@ -4,16 +4,18 @@ go get github.com/essrt/gentoolplus
 go install github.com/essrt/gentoolplus
 
 Useage（使用）：
-gentoolplus  -dbName dbname -dbPwd dbpwd -outPath ./query -dbUser root -dbHost localhost -dbPort 3306
+gentoolplus  -dsn "user:pwd@tcp(localhost:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local" -dbName dbname
 
--dbName: 数据库名称（必须提供一个数据名称）
+参数选项的解释：
+-dbName: 数据库名称（必须提供一个数据库名称）
 -dsn "user:pwd@tcp(localhost:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local"  (用于连接数据库的DSN)
 -outPath：指定输出目录(默认 “./dao/query”)
 -c 配置文件路径、默认值 “”、命令行选项的优先级高于配置文件
 
 配置文件格式为json格式
 主要包含：
-  dbName  string          数据库名称  
+
+ 	dbName  string          数据库名称  
 	dsn     string          用于连接数据库的DSN  
 	outPath string          指定输出目录(默认 “./dao/query”) 
 	dataMap map[string]string   (自定义字段的数据类型)
