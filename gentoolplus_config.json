@@ -2,8 +2,8 @@
     "version": "0.1",
     "database": {
         "dbDriver": "mysql",
-        "dbName": "petshop_dev",
-        "dsn": "root:qw962464@tcp(localhost:3306)/petshop_dev?charset=utf8mb4&parseTime=True&loc=Local",
+        "dbName": "dbname",
+        "dsn": "root:pwd@tcp(localhost:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local",
         "outPath": "./dao/query",
         "dataMap": {
             "tinyint": "int64",
