@@ -119,8 +119,8 @@ func main() {
 
 // 显示帮助信息的函数
 func displayHelp() {
-	fmt.Println("Usage: your_program [options]")
-	fmt.Println("Options:")
+	fmt.Println("用法：gentoolplus [选项]")
+	fmt.Println("选项:")
 	flag.PrintDefaults()
 	os.Exit(0)
 }
