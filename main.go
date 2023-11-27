@@ -16,7 +16,6 @@ import (
 )
 
 var dbName = flag.String("dbName", "", "指定数据库名称")
-
 var outPath = flag.String("outPath", "", "指定输出目录(默认 ./dao/query)")
 var dsn = flag.String("dsn", "", "用于连接数据库的DSN  ")
 var helpFlag = flag.Bool("h", false, "帮助文档")
@@ -51,7 +50,6 @@ type Config struct {
 }
 
 var configFromFile = Config{}
-
 
 // readConfig 从文件中读取配置信息
 func readConfig(filename string) (Config, error) {
@@ -113,9 +111,6 @@ func main() {
 	processAllTables(initInfo())
 	// 处理表关联关系
 	processTableRelations(initInfo())
-
-	// 删除临时tmp文件
-	deleteTmpDir()
 }
 
 // 显示帮助信息的函数
@@ -146,7 +141,8 @@ func initInfo() (db *gorm.DB, g *gen.Generator, fieldOpts []gen.ModelOpt) {
 	}
 
 	if *outPath == "" {
-		*outPath = "./dao/query"
+		workDir, _ := os.Getwd()
+		*outPath = workDir + "dao/query"
 	}
 
 	if configFromFile.ModelPkgPath == "" {
@@ -328,19 +324,19 @@ func processTableRelations(db *gorm.DB, g *gen.Generator, fieldOpts []gen.ModelO
  */
 func moveGenFile() {
 	workDir, _ := os.Getwd()
-	err := os.MkdirAll(workDir+"/tmp", 0777)
+	err := os.MkdirAll(workDir+"/gen_tool_plus_tmp", 0777)
 	if err != nil {
 		fmt.Println("创建文件夹logs失败!", err)
 		return
 	}
-	genFile := workDir + *outPath + "/gen.go"
+	genFile := *outPath + "/gen.go"
 	if _, err := os.Stat(genFile); err != nil {
-		fmt.Println("genfile:", genFile)
+		fmt.Println("moveGenFile:", genFile)
 		fmt.Println("gen.go文件不存在!")
 		return
 	}
 	fmt.Println("gen.go文件存在:", genFile)
-	os.Rename(genFile, workDir+"/tmp/gen.go")
+	os.Rename(genFile, workDir+"/gen_tool_plus_tmp/gen.go")
 }
 
 /**
@@ -348,13 +344,21 @@ func moveGenFile() {
  */
 func moveGenFileBack() {
 	workDir, _ := os.Getwd()
-	genFile := workDir + *outPath + "/gen.go"
+	genFile := *outPath + "/gen.go"
+
+	// 删除临时创建的gen_tool_plus_tmp文件夹
+	defer deleteTmpDir()
+
 	if _, err := os.Stat(genFile); err != nil {
-		fmt.Println("genfile2:", genFile)
+		fmt.Println("moveGenFileBack:", genFile)
 		fmt.Println("gen.go文件不存在!")
 		return
 	}
-	os.Rename(workDir+"/tmp/gen.go", genFile)
+	err := os.Rename(workDir+"/gen_tool_plus_tmp/gen.go", genFile)
+	if err != nil {
+		fmt.Println("移动文件失败!", err)
+		return
+	}
 }
 
 /**
@@ -363,7 +367,7 @@ func moveGenFileBack() {
 func deleteTmpDir() {
 	workDir, _ := os.Getwd()
 	// 要删除的文件夹路径
-	folderPath := workDir + "/tmp"
+	folderPath := workDir + "/gen_tool_plus_tmp"
 
 	// 删除文件夹
 	err := os.RemoveAll(folderPath)
@@ -372,7 +376,7 @@ func deleteTmpDir() {
 		return
 	}
 
-	fmt.Println("临时tmp文件夹删除成功")
+	fmt.Println("临时gen_tool_plus_tmp文件夹删除成功")
 }
 
 // 下划线写法转为驼峰写法
