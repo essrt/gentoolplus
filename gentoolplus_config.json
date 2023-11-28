@@ -17,6 +17,7 @@
         "fieldSignable": false,
         "fieldWithIndexTag": false,
         "fieldWithTypeTag": true,
-        "withUnitTest": false
+        "withUnitTest": false,
+        "singularTable": true
     }
 }

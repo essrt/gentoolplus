@@ -48,10 +48,10 @@ type DBConfig struct {
 	FieldWithTypeTag bool `json:"fieldWithTypeTag"`
 	// 生成单元测试，默认值 false, 选项: false / true
 	WithUnitTest bool `json:"withUnitTest"`
-	// Genrated 查询代码文件名称，默认值：gen.go
-	OutFile string `json:"outFile"`
 	// 生成模型代码包名称。默认值：model
 	ModelPkgPath string `json:"modelPkgPath"`
+	// 表名单数形式，即表名不加s后缀。默认值 true, 选项: false / true
+	SingularTable bool `json:"singularTable"`
 }
 
 var configFromFile = DBConfig{}
@@ -132,12 +132,11 @@ func displayHelp() {
  * 自定义模型结体字段的标签
  */
 func initInfo() (db *gorm.DB, g *gen.Generator, fieldOpts []gen.ModelOpt) {
-	// var err error
 	// 连接数据库
 	db, err := gorm.Open(mysql.Open(*dsn), &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,
 		NamingStrategy: schema.NamingStrategy{
-			SingularTable: true,
+			SingularTable: configFromFile.SingularTable,
 		},
 	})
 	if err != nil {
@@ -153,9 +152,6 @@ func initInfo() (db *gorm.DB, g *gen.Generator, fieldOpts []gen.ModelOpt) {
 		configFromFile.ModelPkgPath = "model"
 	}
 
-	if configFromFile.OutFile == "" {
-		configFromFile.OutFile = "gen.go"
-	}
 	// 生成实例
 	g = gen.NewGenerator(gen.Config{
 		// 相对执行`go run`时的路径, 会自动创建目录，相对路径为工程根目录
@@ -184,8 +180,6 @@ func initInfo() (db *gorm.DB, g *gen.Generator, fieldOpts []gen.ModelOpt) {
 		WithUnitTest: configFromFile.WithUnitTest,
 		// 生成模型代码包名称。默认值：model
 		ModelPkgPath: configFromFile.ModelPkgPath,
-		// 生成的query code文件名称，默认值：gen.go
-		OutFile: configFromFile.OutFile,
 	})
 	// 设置目标 db
 	g.UseDB(db)
