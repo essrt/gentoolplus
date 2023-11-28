@@ -35,7 +35,8 @@ gentoolplus -dbName dbname -dsn "user:pwd@tcp(localhost:3306)/dbname?charset=utf
 	        "fieldSignable": false,
 	        "fieldWithIndexTag": false,
 	        "fieldWithTypeTag": true,
-	        "withUnitTest": false
+	        "withUnitTest": false,
+			"singularTable": true
 	    }
 	}
 
@@ -52,5 +53,5 @@ gentoolplus -dbName dbname -dsn "user:pwd@tcp(localhost:3306)/dbname?charset=utf
 	fieldWithIndexTag 	bool  			生成 gorm 标签的字段索引属性，默认值：false
 	fieldWithTypeTag 	bool 			生成 gorm 标签的字段类型属性，默认值：false
 	withUnitTest 		bool  			生成单元测试，默认值：false,
-	outFile 		string    		Genrated 查询代码文件名称，默认值：gen.go
 	modelPkgPath 		string   		生成模型代码包名称。默认值：model  
+	singularTable		bool			是否使用单数表名，默认值：true
