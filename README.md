@@ -1,11 +1,14 @@
 # gentoolplus
 Install（下载）：
+```
 go get -u github.com/essrt/gentoolplus@latest
+
 go install github.com/essrt/gentoolplus
-
+```
 Useage（使用）：
+```
 gentoolplus -dbName dbname -dsn "user:pwd@tcp(localhost:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local"
-
+```
 参数选项的解释：
 ```
 	-dbDriver	指定数据库引擎（mysql、postgres、sqlite、sqlserver），默认值：mysql
@@ -78,7 +81,7 @@ gentoolplus -dbName dbname -dsn "user:pwd@tcp(localhost:3306)/dbname?charset=utf
 ```
 详细配置文件参数说明：
 ```
-	dbDriver		string				指定数据库引擎（mysql、postgres、sqlite、sqlserver），默认值：mysql
+	dbDriver		string			指定数据库引擎（mysql、postgres、sqlite、sqlserver），默认值：mysql
  	dbName  		string          	数据库名称  
 	dsn     		string          	用于连接数据库的DSN  
 	outPath 		string          	指定输出目录(默认值：./dao/query) 
@@ -105,8 +108,9 @@ gentoolplus -dbName dbname -dsn "user:pwd@tcp(localhost:3306)/dbname?charset=utf
 	many2manyTables     key:表名（中间表名），value:关联表名（子表名，子表名）
 
 ```
-```
+
 注意事项：
+```
     1、如果配置了tables数组，程序将只处理tables数组中的表及其关联关系，任何不在tables中的表，且跟tables中的表有关联关系的表都不会处理。
 	2、如果没有配置tables数组，程序将处理数据库中的所有表及其关联关系。
 	3、如果配置了tables数组，并且belongstoTables、hasoneTables、many2manyTables也有配置，那么belongstoTables、hasoneTables、many2manyTables中的所有表名必须包含在tables数组中，否则会报错。
