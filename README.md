@@ -2,7 +2,8 @@
 Install（下载）：
 ```
 go get -u github.com/essrt/gentoolplus@latest
-
+```
+```
 go install github.com/essrt/gentoolplus
 ```
 Useage（使用）：
@@ -97,7 +98,7 @@ gentoolplus -dbName dbname -dsn "user:pwd@tcp(localhost:3306)/dbname?charset=utf
 	modelPkgPath 		string   		生成模型代码包名称。默认值：model  
 	singularTable		bool			是否使用单数表名，默认值：true
 
-	tables 				[]string 		指定要生成的表名，为空时生成数据库中所有表
+	tables 			[]string 		指定要生成的表名，为空时生成数据库中所有表
 	belongstoTables 	map[string][]string 	指定表的关联表，生成关联表的查询方法
 	hasoneTables 		map[string][]string 	指定表的一对一关联表，生成关联表的查询方法
 	many2manyTables 	map[string][]string 	指定表的多对多关联表，生成关联表的查询方法
