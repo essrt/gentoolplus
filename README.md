@@ -7,6 +7,7 @@ Useage（使用）：
 gentoolplus -dbName dbname -dsn "user:pwd@tcp(localhost:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local"
 
 参数选项的解释：
+```
 	-dbDriver	指定数据库引擎（mysql、postgres、sqlite、sqlserver），默认值：mysql
 	-dbName 	数据库名称（*必填）
 	-dsn   		用于连接数据库的DSN
@@ -14,9 +15,9 @@ gentoolplus -dbName dbname -dsn "user:pwd@tcp(localhost:3306)/dbname?charset=utf
 	-outFile	指定输出文件(默认 gen.go)
 	-c 		配置文件路径(默认 ./gentoolplus_config.json)，命令行选项的优先级高于配置文件
  	-h 		帮助文档
-
+```
 配置文件示例:
-
+```
 	{
     "version": "1.0",
     "database": {
@@ -74,9 +75,9 @@ gentoolplus -dbName dbname -dsn "user:pwd@tcp(localhost:3306)/dbname?charset=utf
         }
     }
 }
-
+```
 详细配置文件参数说明：
-
+```
 	dbDriver		string				指定数据库引擎（mysql、postgres、sqlite、sqlserver），默认值：mysql
  	dbName  		string          	数据库名称  
 	dsn     		string          	用于连接数据库的DSN  
@@ -97,14 +98,13 @@ gentoolplus -dbName dbname -dsn "user:pwd@tcp(localhost:3306)/dbname?charset=utf
 	belongstoTables 	map[string][]string 	指定表的关联表，生成关联表的查询方法
 	hasoneTables 		map[string][]string 	指定表的一对一关联表，生成关联表的查询方法
 	many2manyTables 	map[string][]string 	指定表的多对多关联表，生成关联表的查询方法
-
-
-
+```
 ```
 	belongstoTables     key:表名（子表名），value:关联表名（主表名）
 	hasoneTables        key:表名（主表名），value:关联表名（子表名）
 	many2manyTables     key:表名（中间表名），value:关联表名（子表名，子表名）
 
+```
 ```
 注意事项：
     1、如果配置了tables数组，程序将只处理tables数组中的表及其关联关系，任何不在tables中的表，且跟tables中的表有关联关系的表都不会处理。
