@@ -1,9 +1,9 @@
 {
-    "version": "0.1",
+    "version": "1.0",
     "database": {
         "dbDriver": "mysql",
         "dbName": "sqltest",
-        "dsn": "root:qw962464@tcp(localhost:3306)/sqltest?charset=utf8mb4&parseTime=True&loc=Local",
+        "dsn": "user:pwd@tcp(localhost:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local",
         "outPath": "./dao/query",
         "outFile": "gentoolplus.go",
         "nspname": "public",
@@ -44,7 +44,7 @@
                 "staff",
                 "role"
             ],
-            "user_language": [
+            "user_languages": [
                 "user",
                 "language"
             ]
