@@ -8,7 +8,7 @@ go install github.com/essrt/gentoolplus
 ```
 Useage（使用）：
 ```
-gentoolplus -dbName dbname -dsn "user:pwd@tcp(localhost:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local"
+gentoolplus -c gentoolplus_config.json
 ```
 参数选项的解释：
 ```
