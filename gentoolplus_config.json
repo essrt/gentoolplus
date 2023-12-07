@@ -3,7 +3,6 @@
     "database": {
         "dbDriver": "mysql",
         "dbName": "sqltest",
-        "dsn": "user:pwd@tcp(localhost:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local",
         "outPath": "./dao/query",
         "outFile": "gentoolplus.go",
         "nspname": "public",
