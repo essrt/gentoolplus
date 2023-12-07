@@ -60,7 +60,6 @@ func displayHelp() {
 
 // readConfig 从文件中读取配置信息
 func readConfig(filename string) error {
-
 	v := viper.New()
 
 	v.SetDefault("database.dbDriver", "mysql")
@@ -81,14 +80,16 @@ func readConfig(filename string) error {
 	v.SetConfigType("json")
 
 	//文件的路径设置
-	v.SetConfigFile(*configFile)
+	v.SetConfigFile(filename)
 	if err := v.ReadInConfig(); err != nil {
 		panic(err)
 	}
 
-	err := v.Unmarshal(&global.Config)
+	err := v.Unmarshal(global.Config)
+
 	if err != nil {
 		fmt.Println("读取配置失败")
+		return err
 	}
 	return nil
 }

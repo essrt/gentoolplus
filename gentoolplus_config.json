@@ -1,9 +1,9 @@
 {
     "version": "0.1",
     "database": {
-        "dbDriver": "sqlserver",
+        "dbDriver": "mysql",
         "dbName": "sqltest",
-        "dsn": "sqlserver://sa:qw962464@localhost:1433?database=sqltest",
+        "dsn": "user:pwd@tcp(localhost:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local",
         "outPath": "./dao/query",
         "outFile": "gentoolplus.go",
         "nspname": "public",
@@ -22,22 +22,31 @@
         "withUnitTest": false,
         "singularTable": true,
         "modelPkgPath": "model",
-        "tables": [
-            "company",
-            "position",
-            "staff",
-            "staff_position"
-        ],
+        "tables": [],
         "belongstoTables": {
             "staff": [
+                "department"
+            ],
+            "user": [
+                "company"
+            ],
+            "address": [
                 "company"
             ]
         },
-        "hasoneTables": {},
+        "hasoneTables": {
+            "user": [
+                "staff"
+            ]
+        },
         "many2manyTables": {
-            "staff_position": [
+            "staff_role": [
                 "staff",
-                "position"
+                "role"
+            ],
+            "user_language": [
+                "user",
+                "language"
             ]
         }
     }
