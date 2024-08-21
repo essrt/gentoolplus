@@ -45,7 +45,8 @@ gentoolplus -c gentoolplus_config.json
         "fieldWithTypeTag": false,
         "withUnitTest": false,
         "singularTable": true,
-		"modelPkgPath": "model"
+		"modelPkgPath": "model",
+		"jsonTagFormat": true,
         "tables": [
 			"address",
             "company",
@@ -97,6 +98,7 @@ gentoolplus -c gentoolplus_config.json
 	withUnitTest 		bool  			生成单元测试，默认值：false,
 	modelPkgPath 		string   		生成模型代码包名称。默认值：model  
 	singularTable		bool			是否使用单数表名，默认值：true
+	jsonTagFormat           bool                    json tag 命名格式 默认为false，即不使用驼峰命名，true为使用驼峰命名
 
 	tables 			[]string 		指定要生成的表名，为空时生成数据库中所有表
 	belongstoTables 	map[string][]string 	指定表的关联表，生成关联表的查询方法

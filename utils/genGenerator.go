@@ -73,12 +73,23 @@ func InitGenGenerator() (g *gen.Generator, fieldOpts []gen.ModelOpt) {
 	})
 	softDeleteField := gen.FieldType("deletedAt", "gorm.DeletedAt")
 
+	// 自定义模型结体字段的标签
+	// 将特定字段名的 json 标签修改为驼峰式
+	var jsonField gen.ModelOpt
+	if global.Config.Database.JsonTagFormat {
+		jsonField = gen.FieldJSONTagWithNS(func(columnName string) (tagContent string) {
+			result := Case2Camel(columnName)
+			return result
+		})
+	}
+
 	// 模型自定义选项组
 	fieldOpts = []gen.ModelOpt{
 		// jsonField,
 		autoCreateTimeField,
 		autoUpdateTimeField,
 		softDeleteField,
+		jsonField,
 	}
 
 	return g, fieldOpts

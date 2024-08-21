@@ -45,6 +45,8 @@ type DBConfig struct {
 	Many2manyTables map[string][]string `json:"many2manyTables"`
 	// postgres数据库中的schema名称
 	Nspname string `json:"nspname"`
+	//	json tag 命名格式 默认为false，即不使用驼峰命名，true为使用驼峰命名
+	JsonTagFormat bool `json:"jsonTagFormat"`
 }
 
 // Results 存储数据库关联关系查询结果
