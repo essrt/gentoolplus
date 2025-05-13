@@ -119,3 +119,6 @@ gentoolplus -c gentoolplus_config.json
 	3、如果配置了tables数组，并且belongstoTables、hasoneTables、many2manyTables也有配置，那么belongstoTables、hasoneTables、many2manyTables中的所有表名必须包含在tables数组中，否则会报错。
 	4、如果没有配置belongstoTables、hasoneTables、many2manyTables，那么数据库中所有设置了外键的表之间的关联关系默认为一对多（hasmany）关系。
 ```
+
+详细文档：
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/essrt/gentoolplus)
